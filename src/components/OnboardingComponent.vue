@@ -120,8 +120,7 @@
 
 <script>
 import {VueFinalModal} from "vue-final-modal";
-import {loadYmap, YandexCollection, YandexMap, YandexMarker, YandexObjectManager} from "vue-yandex-maps";
-import PlaceBalloon from "@/components/PlaceBalloon";
+
 import SearchInput from "vue-search-input";
 import axios from "axios";
 import _ from "lodash";
