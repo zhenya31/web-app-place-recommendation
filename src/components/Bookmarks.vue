@@ -1,9 +1,10 @@
 <template>
+  <h1>Избранное</h1>
   <div class="favourites-tabs">
-    <router-link  :to="'/favorites'" class="favourites-tab">
+    <router-link  :to="'/favorites/liked/'" class="favourites-tab">
       Любимые места
     </router-link>
-    <router-link  :to="'/dada'" class="favourites-tab">
+    <router-link  :to="'/favorites/bookmarks/'" class="favourites-tab">
       Хочу сходить
     </router-link>
   </div>
@@ -19,7 +20,7 @@
       </router-link>
       <div>
         <a class="action-btn active" @click="removeFromFavourites(place.id)">
-          <span class="material-icons"  style="color: #F4743B">favorite</span>
+          <span class="material-icons"  style="color: #9FD356">bookmark</span>
         </a>
       </div>
     </div>
@@ -29,88 +30,25 @@
 <script>
 
 export default {
-  name: 'FavouritesComponent',
+  name: 'BookmarksComponent',
 
   data() {
     return {
       places: {},
-      v: '',
     }
   },
 
   created() {
-    this.places = this.$cookies.get('favourites')
+    this.places = this.$cookies.get('bookmarks')
   },
   methods: {
     removeFromFavourites: function (id){
       delete this.places[id];
-      this.$cookies.set('favourites', this.places);
+      this.$cookies.set('bookmarks', this.places);
     }
   }
 }
 </script>
 
 <style lang="scss">
-
-.favourites-tabs {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  padding: 2px;
-  box-sizing: border-box;
-
-
-  max-width: 580px;
-  width: 100%;
-  margin: 32px auto;
-  height: 46px;
-
-  background: #FEF1EC;
-  border-radius: 80px;
-  .favourites-tab {
-    width: 50%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    padding: 6px 12px;
-    gap: 10px;
-
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
-
-    text-align: center;
-    box-sizing: border-box;
-    height: 42px;
-    /* Dark Purple/100 */
-
-    color: #2F1B25;
-
-    &.router-link-active {
-      background: #FFFFFF;
-
-
-      box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 80px;
-    }
-  }
-}
-
-.favourites-list {
-  max-width: 600px;
-  width: 100%;
-  margin: 0 auto;
-  .place-card {
-    justify-content: space-between;
-  }
-}
-
-.place-card-link {
-  display: flex;
-  cursor: pointer;
-  text-decoration: none;
-}
-
 </style>

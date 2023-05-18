@@ -1,153 +1,141 @@
 <template>
-  <div class="place-info-content">
-    <div class="place-header" :style="'background-image: url(\'http://elesinsv.fvds.ru:8080/assets/cafes/'+place.photo+'.jpg\')'">
-      <div class="gradient"></div>
-      <div class="place-header-text">
-        {{ place.name }}
-        <div class="place-categories">{{ place.categories }}</div>
-      </div>
-      <div class="actions">
-        <a class="action-btn">
-          <span class="material-icons">bookmark_border</span>
-        </a>
-        <a class="action-btn">
-          <span class="material-icons">favorite_border</span>
-        </a>
+  <h1>Избранное</h1>
+  <div class="favourites-tabs">
+    <router-link  :to="'/favorites/liked/'" class="favourites-tab">
+      Любимые места
+    </router-link>
+    <router-link  :to="'/favorites/bookmarks/'" class="favourites-tab">
+      Хочу сходить
+    </router-link>
+  </div>
+  <div class="favourites-list">
+    <div v-for="place in places" :key="place.id" class="place-card">
+      <router-link  :to="'/place/'+place.id" class="place-card-link">
+        <div class="place-card-img" :style="'background-image: url(\'http://elesinsv.fvds.ru:8080/assets/cafes/'+place.photo+'.jpg\')'"></div>
+        <div class="place-card-info">
+          <div class="name">{{ place.name }}</div>
+          <div class="categories">{{ place.categories }}</div>
+          <div class="address">{{ place.address }}</div>
         </div>
-      <a class="action-btn close" @click="this.$router.push(this.$router.options.history.state.back)">
-        <span class="material-icons">close</span>
-      </a>
+      </router-link>
+      <div>
+        <a class="action-btn active" @click="removeFromFavourites(place.id)">
+          <span class="material-icons"  style="color: #F4743B">favorite</span>
+        </a>
+      </div>
     </div>
-
-    {{ id }}
   </div>
 </template>
 
 <script>
-import axios from "axios";
 
 export default {
-  name: 'PlaceInfo',
-  props: {
-    id: Number,
-  },
+  name: 'FavouritesComponent',
 
   data() {
     return {
-      place: {},
+      places: {},
     }
   },
 
   created() {
-    axios.get('http://elesinsv.fvds.ru:8080/cafes/'+this.id).then((response) => {
-      if (response.status === 200) {
-        this.place = response.data;
-      }
-    });
+    this.places = this.$cookies.get('favourites')
   },
-  methods: []
+  methods: {
+    removeFromFavourites: function (id){
+      delete this.places[id];
+      this.$cookies.set('favourites', this.places);
+    }
+  }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
 
-.place-info-content {
-  max-width: 800px;
+h1 {
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 28px;
+  color: #2F1B25;
+  text-align: center;
+
+
+  max-width: 580px;
   width: 100%;
-  margin: 0 auto;
-  padding: 32px 8px;
+  margin: 36px auto 15px;
 
-  .place-header {
-    width: 100%;
-    height: 240px;
-    border-radius: 24px;
-    position: relative;
-    overflow: hidden;
+  @media (max-width: 580px) {
+    width: auto;
+    margin: 20px 15px 15px;
+    text-align: left;
 
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center center;
+  }
+}
 
-    .gradient {
-      position: absolute;
-      left: 0%;
-      right: 0%;
-      top: 0%;
-      bottom: 0%;
+.favourites-tabs {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 2px;
+  box-sizing: border-box;
 
-      background: linear-gradient(180deg, rgba(47, 27, 37, 0) 0%, rgba(47, 27, 37, 0.3) 37.95%, rgba(47, 27, 37, 0.8) 100%);
-    }
 
-    .place-header-text {
-      position: absolute;
-      left: 0px;
-      right: 0px;
-      bottom: 30px;
-      text-align: center;
+  max-width: 580px;
+  width: 100%;
+  margin: 32px auto;
+  height: 46px;
 
-      font-weight: 600;
-      font-size: 28px;
-      line-height: 28px;
-
-      color: #FFFFFF;
-      .place-categories {
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 20px;
-
-        color: #FFFFFF;
-        margin-top: 4px;
-      }
-    }
-
-    .action-btn{
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      padding: 6px;
-      background: #FFFFFF;
-      border-radius: 80px;
-      color: #978D92;
-      font-size: 24px;
-      line-height: 24px;
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-      &:hover {
-        background: #eee;
-      }
-    }
-    .actions {
-      position: absolute;
-      left: 15px;
-      top: 12px;
-      display: flex;
-      flex-direction: row;
-      gap: 8px;
-    }
-    .close {
-      position: absolute;
-      right: 15px;
-      top: 12px;
-    }
+  @media (max-width: 580px) {
+    width: auto;
+    margin: 15px 12px;
   }
 
+  background: #FEF1EC;
+  border-radius: 80px;
+  .favourites-tab {
+    width: 50%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 6px 12px;
+    gap: 10px;
 
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+
+    text-align: center;
+    box-sizing: border-box;
+    height: 42px;
+    /* Dark Purple/100 */
+
+    color: #2F1B25;
+
+    &.router-link-active {
+      background: #FFFFFF;
+
+
+      box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 80px;
+    }
+  }
 }
 
+.favourites-list {
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  .place-card {
+    justify-content: space-between;
+  }
+}
 
+.place-card-link {
+  display: flex;
+  cursor: pointer;
+  text-decoration: none;
+}
 
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
 </style>

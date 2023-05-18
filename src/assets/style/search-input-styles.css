@@ -1,33 +1,36 @@
 .search-input-wrapper {
   position: relative;
+  flex: 1;  /* 1 and it will fill whole space left if no flex value are set to other children*/
 }
 .search-input-wrapper input[data-search-input=true] {
   display: block;
-  font-family: "Inter", system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   width: 100%;
-  padding: 6px 30px 6px 32px;
-  font-size: 16px;
-  font-weight: normal;
-  height: 38px;
+  padding: 12px 30px 12px 48px;
+  font-size: 15px;
+  font-weight: 400;
   color: #333;
-  background-color: #f6f9fc;
-  border: 1px solid #f6f9fc;
-  border-radius: 0.35rem;
-  transition: border-color 0.15s ease-in-out;
+  height: 44px;
+  background: #fff;
+  border-radius: 80px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+  border: 1px solid #EEEEEE;
 }
+
+.search-input-wrapper input[data-search-input=true]::placeholder {
+  color: #978D92;
+}
+
 .search-input-wrapper input[data-search-input=true]:focus {
-  background-color: white;
-  border-color: #1ea7fd;
+  border-color: #e0e0e0;
   outline: 0;
-  box-shadow: none;
 }
 .search-input-wrapper .search-icon {
-  color: #83add6;
+  color: #2F1B25;
   position: absolute;
 }
 .search-input-wrapper .search-icon.search {
-  left: 12px;
-  bottom: 12px;
+  left: 20px;
+  bottom: 16px;
   box-sizing: border-box;
   display: block;
   width: 16px;
@@ -45,38 +48,15 @@
   border-radius: 3px;
   width: 2px;
   height: 7px;
-  background: #83add6;
+  background: #2F1B25;
   transform: rotate(-45deg);
   top: 11px;
   left: 12px;
 }
-.search-input-wrapper .search-icon.shortcut {
-  width: 22px;
-  height: 24px;
-  cursor: text;
-  right: 8px;
-  bottom: 7px;
-  background-color: #e7eff7;
-  border-radius: 3px;
-  z-index: 50;
-}
-.search-input-wrapper .search-icon.shortcut::after {
-  content: "";
-  display: block;
-  box-sizing: border-box;
-  position: absolute;
-  border-radius: 2px;
-  transform: rotate(25deg);
-  width: 2px;
-  height: 16px;
-  top: 4px;
-  left: 10px;
-  z-index: 51;
-  background-color: #96b9dc;
-}
+
 .search-input-wrapper .search-icon.clear {
-  right: 5px;
-  bottom: 7px;
+  right: 18px;
+  bottom: 10px;
   cursor: pointer;
   z-index: 10;
   box-sizing: border-box;
@@ -90,7 +70,7 @@
   outline: none;
 }
 .search-input-wrapper .search-icon.clear:focus {
-  background: #e7eff7;
+  background: #2F1B25;
 }
 .search-input-wrapper .search-icon.clear::after, .search-input-wrapper .search-icon.clear::before {
   content: "";
@@ -99,7 +79,7 @@
   position: absolute;
   width: 16px;
   height: 2px;
-  background: #83add6;
+  background: #2F1B25;
   transform: rotate(45deg);
   border-radius: 5px;
   top: 9px;

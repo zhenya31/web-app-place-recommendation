@@ -1,141 +1,259 @@
 <template>
-  <h1>Избранное</h1>
-  <div class="favourites-tabs">
-    <router-link  :to="'/favorites'" class="favourites-tab">
-      Любимые места
-    </router-link>
-    <router-link  :to="'/bookmarks'" class="favourites-tab">
-      Хочу сходить
-    </router-link>
-  </div>
-  <div class="favourites-list">
-    <div v-for="place in places" :key="place.id" class="place-card">
-      <router-link  :to="'/place/'+place.id" class="place-card-link">
-        <div class="place-card-img" :style="'background-image: url(\'http://elesinsv.fvds.ru:8080/assets/cafes/'+place.photo+'.jpg\')'"></div>
-        <div class="place-card-info">
-          <div class="name">{{ place.name }}</div>
-          <div class="categories">{{ place.categories }}</div>
-          <div class="address">{{ place.address }}</div>
-        </div>
-      </router-link>
-      <div>
-        <a class="action-btn active" @click="removeFromFavourites(place.id)">
-          <span class="material-icons"  style="color: #F4743B">favorite</span>
-        </a>
+  <h1>Профиль</h1>
+  <div  v-if="activeScreen === 'login'"  class="profile-content">
+    <div class="color-box">
+      <div class="title-text">
+        Войдите, чтобы получить доступ к своему избранному и рекомендациям
+      </div>
+      <div class="profile-from">
+        <div class="label">Email адрес</div>
+        <input type="text" v-model="login.email" placeholder="Введите ваш email" @keyup.enter="doLogin">
+        <div class="label">Пароль</div>
+        <input type="password" v-model="login.password" placeholder="Введите ваш пароль" @keyup.enter="doLogin">
+
+        <a class="btn" style="margin-top: 28px" @click="doLogin">Войти</a>
+      </div>
+      <div class="profile-error-msg" v-if="login.error != ''">
+        {{ login.error }}
       </div>
     </div>
+    <div class="profile-question-action">
+      Нет аккаунта? <a @click="activeScreen = 'signup'">Создать</a>
+    </div>
   </div>
+  <div v-if="activeScreen === 'signup'" class="profile-content">
+    <div class="color-box">
+      <div class="title-text">
+        Зарегистрируйтесь, чтобы получать  индивидуальные рекомендации на всех устройствах
+      </div>
+      <div class="profile-from">
+        <div class="label">Email адрес</div>
+        <input type="text" v-model="signup.email" placeholder="Введите ваш email">
+        <div class="label">Пароль</div>
+        <input type="password" v-model="signup.password" placeholder="Придумайте пароль">
+        <div class="label">Еще раз пароль</div>
+        <input type="password" v-model="signup.passwordConfirm" placeholder="Введите пароль еще раз">
+
+        <a class="btn" style="margin-top: 28px">Создать аккаунт</a>
+      </div>
+      <div class="profile-error-msg">
+        Пароли не совпадают
+      </div>
+    </div>
+    <div class="profile-question-action">
+      Уже есть аккаунт? <a @click="activeScreen = 'login'">Войти</a>
+    </div>
+  </div>
+
+  <div v-if="activeScreen === 'loggedin'" class="profile-content">
+    <div class="color-box">
+      <div class="title-text">
+        Вы авторизовались как <br>
+        {{ loggedin.email}}
+      </div>
+      <a class="btn" style="margin-top: 28px" @click="doLogout">Выйти</a>
+    </div>
+  </div>
+
 </template>
 
 <script>
 
+import axios from "axios";
+import _ from "lodash";
+
 export default {
-  name: 'FavouritesComponent',
+  name: 'ProfileComponent',
 
   data() {
     return {
-      places: {},
+      activeScreen: '',
+      login: {
+        email: '',
+        password: '',
+        error: '',
+      },
+      signup: {
+        email: '',
+        password: '',
+        passwordConfirm: '',
+        error: '',
+      },
+      loggedin: {
+        email: '',
+      }
     }
   },
 
   created() {
-    this.places = this.$cookies.get('favourites')
+    let token = this.$cookies.get('usertoken');
+    console.log(token)
+    if (token !== undefined && token !== null && token !== -1 && token !== '') {
+      this.loggedin.email = this.$cookies.get('userEmail');
+      this.activeScreen = 'loggedin';
+    }
+    else {
+      this.activeScreen = 'signup';
+    }
   },
   methods: {
-    removeFromFavourites: function (id){
-      delete this.places[id];
-      this.$cookies.set('favourites', this.places);
-    }
+    doLogin: function (){
+      let loginData = {
+        email: this.login.email,
+        password: this.login.password,
+      }
+      axios.post('http://elesinsv.fvds.ru:8080/login', loginData).then((response) => {
+        if (response.status === 200) {
+          let usertoken = response.data;
+
+          this.$cookies.set('usertoken', usertoken);
+          this.$cookies.set('userEmail', loginData.email);
+
+          this.loggedin.email = loginData.email;
+          this.activeScreen = 'loggedin';
+        }
+        else {
+          this.login.error = 'Не верный логин или пароль'
+        }
+      }).catch((error) => {
+        this.login.error = 'Не верный логин или пароль';
+      });
+    },
+    doLogout: function (){
+      this.$cookies.remove('userEmail');
+      this.$cookies.remove('usertoken');
+      this.$cookies.set('favourites', {});
+      this.$cookies.set('bookmarks', {});
+      this.activeScreen = 'login';
+    },
   }
 }
 </script>
 
 <style lang="scss">
 
-h1 {
-  font-weight: 600;
-  font-size: 24px;
-  line-height: 28px;
-  color: #2F1B25;
-  text-align: center;
+.profile-content {
+  max-width: 480px;
+  margin: 0 auto;
 
+  .color-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 22px;
+    gap: 32px;
+    margin-top: 24px;
+    margin-bottom: 24px;
 
-  max-width: 580px;
-  width: 100%;
-  margin: 36px auto 15px;
+    .title-text {
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 20px;
 
-  @media (max-width: 580px) {
-    width: auto;
-    margin: 20px 15px 15px;
-    text-align: left;
+      text-align: center;
 
+      color: #000000;
+    }
+    .profile-from {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      box-sizing: border-box;
+      width: 100%;
+
+      .label {
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 20px;
+        color: #2F1B25;
+        text-align: left;
+        width: 100%;
+
+        margin-bottom: 4px;
+
+      }
+
+      input {
+        padding: 10px 16px 10px 24px;
+        gap: 8px;
+        box-sizing: border-box;
+        width: 100%;
+        margin-bottom: 16px;
+
+        background: #FFFFFF;
+
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 20px;
+
+        outline: none;
+        border: none;
+      }
+    }
   }
-}
 
-.favourites-tabs {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  padding: 2px;
-  box-sizing: border-box;
+  .profile-error-msg {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 20px;
+    /* identical to box height, or 167% */
 
+    text-align: center;
 
-  max-width: 580px;
-  width: 100%;
-  margin: 32px auto;
-  height: 46px;
-
-  @media (max-width: 580px) {
-    width: auto;
-    margin: 15px 12px;
+    color: #F44336;
   }
 
-  background: #FEF1EC;
-  border-radius: 80px;
-  .favourites-tab {
-    width: 50%;
+  .btn {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 6px 12px;
-    gap: 10px;
+    padding: 10px 20px;
+    gap: 8px;
 
-    text-decoration: none;
+    width: 100%;
+    box-sizing: border-box;
+
+    background: #F4743B;
+    border-radius: 8px;
+
     font-weight: 500;
-    font-size: 14px;
+    font-size: 16px;
+    line-height: 24px;
+
+    text-align: center;
+
+    color: #FFFFFF;
+
+    &:hover {opacity: 0.9}
+
+  }
+
+  .profile-question-action {
+    font-weight: 400;
+    font-size: 16px;
     line-height: 20px;
 
     text-align: center;
-    box-sizing: border-box;
-    height: 42px;
-    /* Dark Purple/100 */
+
 
     color: #2F1B25;
 
-    &.router-link-active {
-      background: #FFFFFF;
-
-
-      box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 80px;
+    a {
+      font-weight: 600;
+      color: #F4743B;
+      cursor: pointer;
+      &:hover {opacity: 0.9}
     }
   }
+
 }
 
-.favourites-list {
-  max-width: 600px;
-  width: 100%;
-  margin: 0 auto;
-  .place-card {
-    justify-content: space-between;
-  }
-}
 
-.place-card-link {
-  display: flex;
-  cursor: pointer;
-  text-decoration: none;
-}
 
 </style>
